@@ -360,4 +360,6 @@ static void DrawUI(){
 
     DrawText(TextFormat("%01i", collectionCount), collection[COLLECTION_SCORE_UI].aux[3].x + 2*COLLECTIONS_REC_SIZE, collection[COLLECTION_SCORE_UI].main.y + COLLECTIONS_REC_SIZE/2 - COLLECTION_FONT_SIZE/2, COLLECTION_FONT_SIZE, SCORE_FONT_COLOR);
     DrawText(TextFormat("%01i", rootCount), collection[COLLECTION_SCORE_UI].aux[3].x + 2*COLLECTIONS_REC_SIZE, root[ROOT_SCORE_UI].main.y, COLLECTION_FONT_SIZE, SCORE_FONT_COLOR);
+
+    DrawText("Use ARROW KEYS to navigate", SCORE_FONT_SIZE, gameScreenHeight - 2*COLLECTION_FONT_SIZE, 38, SCORE_FONT_COLOR);
 }
