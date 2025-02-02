@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "raylib.h": "c",
+        "game.h": "c",
+        "raymath.h": "c",
+        "emscripten.h": "c"
+    }
+}
