@@ -77,21 +77,6 @@ ifeq ($(PLATFORM),PLATFORM_DESKTOP)
         ifeq ($(UNAMEOS),Linux)
             PLATFORM_OS = LINUX
         endif
-        ifeq ($(UNAMEOS),FreeBSD)
-            PLATFORM_OS = BSD
-        endif
-        ifeq ($(UNAMEOS),OpenBSD)
-            PLATFORM_OS = BSD
-        endif
-        ifeq ($(UNAMEOS),NetBSD)
-            PLATFORM_OS = BSD
-        endif
-        ifeq ($(UNAMEOS),DragonFly)
-            PLATFORM_OS = BSD
-        endif
-        ifeq ($(UNAMEOS),Darwin)
-            PLATFORM_OS = OSX
-        endif
         ifndef PLATFORM_SHELL
             PLATFORM_SHELL = sh
         endif
@@ -117,9 +102,6 @@ ifeq ($(PLATFORM),PLATFORM_WEB)
         ifeq ($(UNAMEOS),Linux)
             PLATFORM_OS = LINUX
         endif
-        ifeq ($(UNAMEOS),Darwin)
-            PLATFORM_OS = OSX
-        endif
         ifndef PLATFORM_SHELL
             PLATFORM_SHELL = sh
         endif
@@ -142,16 +124,6 @@ endif
 #------------------------------------------------------------------------------------------------
 CC = gcc
 
-ifeq ($(PLATFORM),PLATFORM_DESKTOP)
-    ifeq ($(PLATFORM_OS),OSX)
-        # OSX default compiler
-        CC = clang
-    endif
-    ifeq ($(PLATFORM_OS),BSD)
-        # FreeBSD, OpenBSD, NetBSD, DragonFly default compiler
-        CC = clang
-    endif
-endif
 ifeq ($(PLATFORM),PLATFORM_WEB)
     # HTML5 emscripten compiler
     # WARNING: To compile to HTML5, code must be redesigned
@@ -201,11 +173,7 @@ else
             CFLAGS += -Os
         endif
     else
-        ifeq ($(PLATFORM_OS),OSX)
-            CFLAGS += -O2
-        else
-            CFLAGS += -s -O2
-        endif
+        CFLAGS += -s -O2
     endif
 endif
 ifeq ($(PLATFORM),PLATFORM_DRM)
@@ -221,12 +189,6 @@ ifeq ($(PLATFORM),PLATFORM_DRM)
     # DRM required libraries
     INCLUDE_PATHS += -I/usr/include/libdrm
 endif
-ifeq ($(PLATFORM),PLATFORM_DESKTOP)
-    ifeq ($(PLATFORM_OS),BSD)
-        # Consider -L$(RAYLIB_H_INSTALL_PATH)
-        INCLUDE_PATHS += -I/usr/local/include
-    endif
-endif
 
 # Define library paths containing required libs: LDFLAGS
 #------------------------------------------------------------------------------------------------
@@ -240,10 +202,6 @@ ifeq ($(PLATFORM),PLATFORM_DESKTOP)
         ifeq ($(BUILD_MODE), RELEASE)
             LDFLAGS += -Wl,--subsystem,windows
         endif
-    endif
-    ifeq ($(PLATFORM_OS),BSD)
-        # Consider -L$(RAYLIB_INSTALL_PATH)
-        LDFLAGS += -Lsrc -L/usr/local/lib
     endif
     ifeq ($(PLATFORM_OS),LINUX)
         # Reset everything.
@@ -320,19 +278,6 @@ ifeq ($(PLATFORM),PLATFORM_DESKTOP)
             LDLIBS += -lc
         endif
     endif
-    ifeq ($(PLATFORM_OS),OSX)
-        # Libraries for OSX 10.9 desktop compiling
-        # NOTE: Required packages: libopenal-dev libegl1-mesa-dev
-        LDLIBS = -lraylib -framework OpenGL -framework Cocoa -framework IOKit -framework CoreAudio -framework CoreVideo
-    endif
-    ifeq ($(PLATFORM_OS),BSD)
-        # Libraries for FreeBSD, OpenBSD, NetBSD, DragonFly desktop compiling
-        # NOTE: Required packages: mesa-libs
-        LDLIBS = -lraylib -lGL -lpthread -lm
-
-        # On XWindow requires also below libraries
-        LDLIBS += -lX11 -lXrandr -lXinerama -lXi -lXxf86vm -lXcursor
-    endif
 endif
 ifeq ($(PLATFORM),PLATFORM_WEB)
     # Libraries for web (HTML5) compiling
@@ -350,15 +295,8 @@ endif
 OBJS = $(patsubst %.c, %.o, $(PROJECT_SOURCE_FILES))
 
 # Define processes to execute
-#------------------------------------------------------------------------------------------------
-# For Android platform we call a custom Makefile.Android
-ifeq ($(PLATFORM),PLATFORM_ANDROID)
-    MAKEFILE_TARGET = -f Makefile.Android
-    export PROJECT_NAME
-    export PROJECT_SOURCE_FILES
-else
-    MAKEFILE_TARGET = $(PROJECT_NAME)
-endif
+MAKEFILE_TARGET = $(PROJECT_NAME)
+
 
 # Default target entry
 # NOTE: We call this Makefile target or Makefile.Android target
@@ -386,14 +324,6 @@ ifeq ($(PLATFORM),PLATFORM_DESKTOP)
 		find . -type f -executable -delete
 		rm -fv *.o
     endif
-    ifeq ($(PLATFORM_OS),OSX)
-		find . -type f -perm +ugo+x -delete
-		rm -f *.o
-    endif
-endif
-ifeq ($(PLATFORM),PLATFORM_RPI)
-	find . -type f -executable -delete
-	rm -fv *.o
 endif
 ifeq ($(PLATFORM),PLATFORM_DRM)
 	find . -type f -executable -delete
@@ -402,9 +332,6 @@ endif
 ifeq ($(PLATFORM),PLATFORM_WEB)
     ifeq ($(PLATFORM_OS),LINUX)
 		rm -fv *.o $(PROJECT_NAME).data $(PROJECT_NAME).html $(PROJECT_NAME).js $(PROJECT_NAME).wasm
-    endif
-    ifeq ($(PLATFORM_OS),OSX)
-		rm -f *.o $(PROJECT_NAME).data $(PROJECT_NAME).html $(PROJECT_NAME).js $(PROJECT_NAME).wasm
     endif
 endif
 
