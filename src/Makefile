@@ -82,15 +82,6 @@ ifeq ($(PLATFORM),PLATFORM_DESKTOP)
         endif
     endif
 endif
-ifeq ($(PLATFORM),PLATFORM_DRM)
-    UNAMEOS = $(shell uname)
-    ifeq ($(UNAMEOS),Linux)
-        PLATFORM_OS = LINUX
-    endif
-    ifndef PLATFORM_SHELL
-        PLATFORM_SHELL = sh
-    endif
-endif
 ifeq ($(PLATFORM),PLATFORM_WEB)
     ifeq ($(OS),Windows_NT)
         PLATFORM_OS = WINDOWS
@@ -130,14 +121,6 @@ ifeq ($(PLATFORM),PLATFORM_WEB)
     # to use emscripten.h and emscripten_set_main_loop()
     CC = emcc
 endif
-ifeq ($(PLATFORM),PLATFORM_DRM)
-    ifeq ($(USE_RPI_CROSS_COMPILER),TRUE)
-        # Define RPI cross-compiler
-        #CC = armv6j-hardfloat-linux-gnueabi-gcc
-        CC = $(RPI_TOOLCHAIN)/bin/arm-linux-gnueabihf-gcc
-    endif
-endif
-
 
 # Define default make program: MAKE
 #------------------------------------------------------------------------------------------------
@@ -176,19 +159,12 @@ else
         CFLAGS += -s -O2
     endif
 endif
-ifeq ($(PLATFORM),PLATFORM_DRM)
-    CFLAGS += -std=gnu99 -DEGL_NO_X11
-endif
 
 # Define include paths for required headers: INCLUDE_PATHS
 #------------------------------------------------------------------------------------------------
 INCLUDE_PATHS += -I. -Iexternal -I$(RAYLIB_INCLUDE_PATH)
 
 # Define additional directories containing required header files
-ifeq ($(PLATFORM),PLATFORM_DRM)
-    # DRM required libraries
-    INCLUDE_PATHS += -I/usr/include/libdrm
-endif
 
 # Define library paths containing required libs: LDFLAGS
 #------------------------------------------------------------------------------------------------
@@ -283,12 +259,6 @@ ifeq ($(PLATFORM),PLATFORM_WEB)
     # Libraries for web (HTML5) compiling
     LDLIBS = $(RAYLIB_LIB_PATH)/libraylib.web.a
 endif
-ifeq ($(PLATFORM),PLATFORM_DRM)
-    # Libraries for DRM compiling
-    # NOTE: Required packages: libasound2-dev (ALSA)
-    LDLIBS = -lraylib -lGLESv2 -lEGL -lpthread -lrt -lm -lgbm -ldrm -ldl
-endif
-
 
 # Define all object files from source files
 #------------------------------------------------------------------------------------------------
@@ -324,10 +294,6 @@ ifeq ($(PLATFORM),PLATFORM_DESKTOP)
 		find . -type f -executable -delete
 		rm -fv *.o
     endif
-endif
-ifeq ($(PLATFORM),PLATFORM_DRM)
-	find . -type f -executable -delete
-	rm -fv *.o
 endif
 ifeq ($(PLATFORM),PLATFORM_WEB)
     ifeq ($(PLATFORM_OS),LINUX)
